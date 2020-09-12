@@ -7,7 +7,9 @@ defmodule Issues.CLI do
   """
 
   def run(argv) do
-    parse_args(argv)
+    argv
+    |> parse_args
+    |> process
   end
 
   @doc """
@@ -20,6 +22,17 @@ defmodule Issues.CLI do
     OptionParser.parse(argv, switches: [help: :boolean], aliases: [h: :help])
     |> elem(1)
     |> args_to_internal_representation()
+  end
+
+  def process(:help) do
+    IO.puts """
+    usage: issues <user> <project> [count | #@default_count]
+    """
+    System.halt(0)
+  end
+
+  def process([user, project, _count]) do
+    Issues.GithubIssues.fetch(user, project)
   end
 
   def args_to_internal_representation([user, project, count]) do
